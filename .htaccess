@@ -1,0 +1,37 @@
+RewriteEngine On
+
+<IfModule mod_headers.c>
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# Production: redirect /Site requests to live site (skip localhost)
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)$ [NC]
+RewriteCond %{REQUEST_URI} ^/Site [NC]
+RewriteRule ^.*$ https://dpsunnao.com/? [R=301,L]
+
+# HTTPS redirect (skip localhost — use http://localhost/... without SSL issues)
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)$ [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Friendly URL rewrites
+RewriteRule ^home$ index.php [NC,L]
+# After optional extensionless URLs: keep /index → index.php (not page-template)
+RewriteRule ^index/?$ index.php [NC,L]
+RewriteRule ^blog/([A-Za-z0-9-]+)$ detail.php?slug=$1 [NC,L]
+RewriteRule ^view/([A-Za-z0-9-]+)$ detail-view.php?slug=$1 [NC,L]
+
+# Internally rewrite clean URLs to existing .php files (DOCUMENT_ROOT + full REQUEST_URI — works in subfolders)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !\.php$
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.php -f
+RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# Dynamic CMS pages only when no dedicated .php file exists
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.php !-f
+RewriteRule ^([^/]+)/?$ page-template.php?page=$1 [NC,L,QSA]
