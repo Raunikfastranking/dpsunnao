@@ -18,6 +18,8 @@ function fetchMultipleApiData($endpoints)
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $baseUrl . $endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);          // max 15s per request so a hung API can't stall the page
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // disable SSL check if needed
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, api_auth_headers());
@@ -144,7 +146,54 @@ $endpoints = [
 
   ];
 
-$data = fetchMultipleApiData($endpoints);
+// --- API response caching ---
+// All ~95 endpoints are cached to disk so every page load doesn't hit the remote API.
+$cacheFile = __DIR__ . '/cache/api_data.json';
+$cacheTime = 600; // 10 minutes
+
+// Manual cache flush: open any page with ?flush_api_cache=dps_unnao_2026
+if (isset($_GET['flush_api_cache']) && $_GET['flush_api_cache'] === 'dps_unnao_2026' && file_exists($cacheFile)) {
+    unlink($cacheFile);
+}
+
+$staleData = null;
+if (file_exists($cacheFile)) {
+    $decodedCache = json_decode(file_get_contents($cacheFile), true);
+    if (is_array($decodedCache)) {
+        $staleData = $decodedCache;
+    }
+}
+
+if ($staleData !== null && (time() - filemtime($cacheFile)) < $cacheTime) {
+    // Fresh cache — skip all remote calls
+    $data = $staleData;
+} else {
+    $data = fetchMultipleApiData($endpoints);
+
+    // If an endpoint failed (null) but we have older cached data for it, keep the stale value
+    $hasFreshData = false;
+    foreach ($endpoints as $key => $_) {
+        if (($data[$key] ?? null) !== null) {
+            $hasFreshData = true;
+        } elseif (isset($staleData[$key])) {
+            $data[$key] = $staleData[$key];
+        }
+    }
+
+    if ($hasFreshData) {
+        $cacheDir = dirname($cacheFile);
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+        // Atomic write so concurrent visitors never read a half-written file
+        file_put_contents($cacheFile . '.tmp', json_encode($data), LOCK_EX);
+        rename($cacheFile . '.tmp', $cacheFile);
+    } elseif ($staleData !== null) {
+        // API fully unreachable — serve last known good cache
+        $data = $staleData;
+    }
+}
+// --- End caching ---
 
 $home_data   = $data['home_data'];
 $menu_data   = $data['menu_data'];
