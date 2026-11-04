@@ -44,9 +44,17 @@
 
       <div class="sm:mt-3 sm:order-1 order-1 mt-8 ">
           <div>
-              <a href="index.php">
-                  <img src="<?= $header_footer_data[1]['meta_data']['footer_logo_url'] ?? "" ?>" alt=""
-                      class="w-[236px] sm:w-[200px]">
+              <a href="/">
+                  <?php
+                  $dps_footer_logo = trim((string)($header_footer_data[1]['meta_data']['footer_logo_url'] ?? ''));
+                  if ($dps_footer_logo === '') {
+                      $dps_footer_logo = '/assets/images/dps-unnao-logo.png';
+                  }
+                  ?>
+                  <img src="<?= htmlspecialchars($dps_footer_logo, ENT_QUOTES, 'UTF-8') ?>"
+                      alt="Delhi Public School Unnao"
+                      class="w-[236px] sm:w-[200px]"
+                      onerror="this.onerror=null;this.src='/assets/images/dps-unnao-logo.png';">
               </a>
           </div>
           <div class="mt-5">
