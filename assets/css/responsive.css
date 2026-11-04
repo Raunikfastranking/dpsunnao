@@ -83,6 +83,19 @@ header nav {
   color: #000;
   text-transform: uppercase;
   font-weight: 800;
+  display: flex;
+  align-items: center;
+}
+
+.logo img.dps-site-logo,
+.NavMenuLogo img.dps-site-logo {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+  max-height: 72px;
+  object-fit: contain;
+  background: transparent;
 }
 
 .bartoggle,

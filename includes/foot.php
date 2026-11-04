@@ -52,40 +52,52 @@
   const closePopup = document.getElementById('closePopup');
   const popupForm = document.getElementById('popupForm');
 
-  openPopup.addEventListener('click', (e) => {
-    e.preventDefault(); // Prevents default anchor behavior
-    popupForm.classList.remove('hidden');
-  });
+  if (openPopup && popupForm) {
+    openPopup.addEventListener('click', (e) => {
+      e.preventDefault();
+      popupForm.classList.remove('hidden');
+    });
+  }
 
-  closePopup.addEventListener('click', () => {
-    popupForm.classList.add('hidden');
-  });
-
-  popupForm.addEventListener('click', (e) => {
-    if (e.target === popupForm) {
+  if (closePopup && popupForm) {
+    closePopup.addEventListener('click', () => {
       popupForm.classList.add('hidden');
-    }
-  });
+    });
+  }
+
+  if (popupForm) {
+    popupForm.addEventListener('click', (e) => {
+      if (e.target === popupForm) {
+        popupForm.classList.add('hidden');
+      }
+    });
+  }
 </script>
 <script>
   const openEnquiryBtn = document.getElementById('ctaEnquireBtn');
   const closeEnquiryBtn = document.getElementById('customCloseBtn');
   const enquiryPopup = document.getElementById('customEnquiryPopup');
 
-  openEnquiryBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    enquiryPopup.classList.remove('hidden');
-  });
+  if (openEnquiryBtn && enquiryPopup) {
+    openEnquiryBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      enquiryPopup.classList.remove('hidden');
+    });
+  }
 
-  closeEnquiryBtn.addEventListener('click', () => {
-    enquiryPopup.classList.add('hidden');
-  });
-
-  enquiryPopup.addEventListener('click', (e) => {
-    if (e.target === enquiryPopup) {
+  if (closeEnquiryBtn && enquiryPopup) {
+    closeEnquiryBtn.addEventListener('click', () => {
       enquiryPopup.classList.add('hidden');
-    }
-  });
+    });
+  }
+
+  if (enquiryPopup) {
+    enquiryPopup.addEventListener('click', (e) => {
+      if (e.target === enquiryPopup) {
+        enquiryPopup.classList.add('hidden');
+      }
+    });
+  }
 </script>
 
 <script>
@@ -107,76 +119,74 @@
 </script>
 
 <script>
-  document.getElementById("openPopup").addEventListener("click", function(e) {
-    e.preventDefault();
-    document.getElementById("popupForm").classList.remove("hidden");
-  });
-
-  document.getElementById("closePopup").addEventListener("click", function() {
-    document.getElementById("popupForm").classList.add("hidden");
-  });
+  (function() {
+    const openBtn = document.getElementById("openPopup");
+    const closeBtn = document.getElementById("closePopup");
+    const popupEl = document.getElementById("popupForm");
+    if (openBtn && popupEl) {
+      openBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        popupEl.classList.remove("hidden");
+      });
+    }
+    if (closeBtn && popupEl) {
+      closeBtn.addEventListener("click", function() {
+        popupEl.classList.add("hidden");
+      });
+    }
+  })();
 </script>
 
 <script>
   const BASE_URL = "<?= rtrim((isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'], '/') ?>";
   document.addEventListener("DOMContentLoaded", function() {
-     const enquiryForm = document.getElementById("enquiryForm");
-const estudent_name = document.getElementById("estudent_name");
-const eparent_name = document.getElementById("eparent_name");
-const emobile = document.getElementById("emobile");
-const eemail = document.getElementById("eemail");
-const epincode = document.getElementById("epincode");
-const ecity = document.getElementById("ecity");
-const esession = document.getElementById("esession");
-const egrade = document.getElementById("egrade");
-const submitBtn = document.getElementById("submitBtn");
+    const enquiryForm = document.getElementById("enquiryForm");
     const popup = document.getElementById("popupForm");
     const closePopupBtn = document.getElementById("closePopup");
-
     const openDesktop = document.getElementById("openPopupDesktop");
     const openMobile = document.getElementById("openPopupMobile");
 
+    function openPopup() {
+      if (popup) popup.classList.remove("hidden");
+    }
+
+    if (openDesktop) openDesktop.addEventListener("click", openPopup);
+    if (openMobile) openMobile.addEventListener("click", openPopup);
+    if (closePopupBtn && popup) {
+      closePopupBtn.addEventListener("click", function() {
+        popup.classList.add("hidden");
+      });
+    }
+    if (popup) {
+      popup.addEventListener("click", function(e) {
+        if (e.target === popup) popup.classList.add("hidden");
+      });
+    }
+
+    // Old custom enquiry form handlers (skipped when ExtraaEdge widget is used)
+    if (!enquiryForm) return;
+
+    const estudent_name = document.getElementById("estudent_name");
+    const eparent_name = document.getElementById("eparent_name");
+    const emobile = document.getElementById("emobile");
+    const eemail = document.getElementById("eemail");
+    const epincode = document.getElementById("epincode");
+    const ecity = document.getElementById("ecity");
+    const esession = document.getElementById("esession");
+    const egrade = document.getElementById("egrade");
+    const submitBtn = document.getElementById("submitBtn");
     const sessionSelect = document.getElementById("esession");
     const gradeSelect = document.getElementById("egrade");
     const citySelect = document.getElementById("ecity");
-
-    let apiLoaded = false;
-    function openPopup() {
-      popup.classList.remove("hidden");
-
-      if (!apiLoaded) {
-        // Load Session
-        fetch(`${BASE_URL}/includes/session-api`)
-          .then(res => res.text())
-          .then(html => sessionSelect.innerHTML += html);
-
-        // Load Grade
-        fetch(`${BASE_URL}/includes/grade-api`)
-          .then(res => res.text())
-          .then(html => gradeSelect.innerHTML += html);
-
-        // Load City
-        fetch(`${BASE_URL}/includes/get-city`)
-          .then(res => res.text())
-          .then(html => citySelect.innerHTML += html);
-
-        apiLoaded = true;
-      }
-    }
-
-    openDesktop.addEventListener("click", openPopup);
-    openMobile.addEventListener("click", openPopup);
-    closePopupBtn.addEventListener("click", function() {
-      popup.classList.add("hidden");
-    });
-    popup.addEventListener("click", function(e) {
-      if (e.target === popup) popup.classList.add("hidden");
-    });
   });
 </script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
+    // ExtraaEdge widget replaces the old enquiry form — skip legacy handlers
+    const enquiryForm = document.getElementById("enquiryForm");
+    if (!enquiryForm) return;
+
     /* ========================= CUSTOM CITY DROPDOWN ========================== */
     document.querySelectorAll(".customSelect").forEach(wrapper => {
       const realSelect = wrapper.querySelector("select");
@@ -260,6 +270,15 @@ const submitBtn = document.getElementById("submitBtn");
     const emailError = document.getElementById("email-error");
     const pincodeError = document.getElementById("pincode-error");
     const cityError = document.getElementById("city-error");
+    const estudent_name = document.getElementById("estudent_name");
+    const eparent_name = document.getElementById("eparent_name");
+    const emobile = document.getElementById("emobile");
+    const eemail = document.getElementById("eemail");
+    const epincode = document.getElementById("epincode");
+    const ecity = document.getElementById("ecity");
+    const esession = document.getElementById("esession");
+    const egrade = document.getElementById("egrade");
+    const submitBtn = document.getElementById("submitBtn");
 
     /* ========================= LIVE INPUT VALIDATION ========================== */
     estudent_name.addEventListener("input", function() {
@@ -316,13 +335,12 @@ const submitBtn = document.getElementById("submitBtn");
       if (!emailRegex.test(payload.email)) isValid = false;
       if (!pincodeRegex.test(payload.pincode)) isValid = false;
 
-      // ✅ CITY VALIDATION
-    if (!ecity.value.trim()) {
-      cityError.classList.remove("hidden");
-      isValid = false;
-    } else {
-      cityError.classList.add("hidden");
-    }
+      if (!ecity.value.trim()) {
+        cityError.classList.remove("hidden");
+        isValid = false;
+      } else {
+        cityError.classList.add("hidden");
+      }
 
       if (!isValid) return;
       submitBtn.disabled = true;
